@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import { LeagueDataResponse } from "@/types";
 export const useLeagueData = (
   leagueId: string,
   espn_s2: string,
@@ -8,9 +8,12 @@ export const useLeagueData = (
   const [leagueData, setLeagueData] = useState<LeagueDataResponse | null>(null);
   const [teamId, setTeamId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true); // Add loading state
 
   useEffect(() => {
     const fetchLeagueData = async () => {
+      setLoading(true); // Set loading to true before the fetch
+      setError(null); // Reset error state
       try {
         const response = await fetch(
           `/api/espn/league?leagueId=${leagueId}&espn_s2=${espn_s2}&swid=${swid}`
@@ -34,11 +37,13 @@ export const useLeagueData = (
         }
       } catch (err: any) {
         setError(err.message || "An unknown error occurred.");
+      } finally {
+        setLoading(false); // Set loading to false after the fetch
       }
     };
 
     fetchLeagueData();
   }, [leagueId, espn_s2, swid]);
 
-  return { leagueData, teamId, error };
+  return { leagueData, teamId, error, isLeagueDataLoading: loading };
 };
