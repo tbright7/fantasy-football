@@ -34,16 +34,11 @@ const DashboardPage = () => {
           {teamData ? (
             <>
               <h2>Your Team Roster</h2>
-              <pre>
-                {teamData &&
-                  JSON.stringify(
-                    teamData.roster.entries.map(
-                      (e) => e.playerPoolEntry.player.fullName
-                    ),
-                    null,
-                    2
-                  )}
-              </pre>
+              <ul>
+                {teamData.roster.entries.map((e) => (
+                  <li key={e.playerId}>{e.playerPoolEntry.player.fullName}</li>
+                ))}
+              </ul>
             </>
           ) : (
             <p>Unable to fetch your team data.</p>
