@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { TeamDataResponse } from "@/types";
 export const useTeamData = (
-  leagueId: string,
-  teamId: number,
-  espn_s2: string,
-  swid: string
+  leagueId: string | null,
+  teamId: number | null,
+  espn_s2: string | null,
+  swid: string | null
 ) => {
   const [teamData, setTeamData] = useState<TeamDataResponse | null>(null);
   const [error, setError] = useState<string | null>(null);

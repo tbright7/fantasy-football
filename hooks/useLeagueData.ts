@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { LeagueDataResponse } from "@/types";
 export const useLeagueData = (
-  leagueId: string,
-  espn_s2: string,
-  swid: string
+  leagueId: string | null,
+  espn_s2: string | null,
+  swid: string | null
 ) => {
   const [leagueData, setLeagueData] = useState<LeagueDataResponse | null>(null);
   const [teamId, setTeamId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true); // Add loading state
-
+  const [userTeam, setUserTeam] = useState(null);
   useEffect(() => {
     const fetchLeagueData = async () => {
       setLoading(true); // Set loading to true before the fetch
@@ -32,6 +32,7 @@ export const useLeagueData = (
         );
         if (team) {
           setTeamId(team.id);
+          setUserTeam(team);
         } else {
           throw new Error("Unable to find your team in the league data.");
         }
@@ -45,5 +46,5 @@ export const useLeagueData = (
     fetchLeagueData();
   }, [leagueId, espn_s2, swid]);
 
-  return { leagueData, teamId, error, isLeagueDataLoading: loading };
+  return { leagueData, teamId, error, isLeagueDataLoading: loading, userTeam };
 };

@@ -1,17 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { LeagueDataResponse, TeamDataResponse } from "@/types";
 import { useLeagueData, useTeamData } from "@/hooks";
 import { getCookieValue } from "@/lib/utils";
 const DashboardPage = () => {
-  const [error, setError] = useState("");
-
   const leagueId = getCookieValue("leagueId");
   const espn_s2 = getCookieValue("espn_s2");
   const swid = getCookieValue("swid");
 
-  const { teamId } = useLeagueData(leagueId, espn_s2, swid);
+  const { teamId, userTeam } = useLeagueData(leagueId, espn_s2, swid);
+  console.log(userTeam);
   const { teamData, isTeamDataLoading } = useTeamData(
     leagueId,
     teamId,
@@ -27,23 +24,17 @@ const DashboardPage = () => {
   return (
     <div>
       <h1>Fantasy Dashboard</h1>
-      {error ? (
-        <p style={{ color: "red" }}>Error: {error}</p>
-      ) : (
+      {teamData ? (
         <>
-          {teamData ? (
-            <>
-              <h2>Your Team Roster</h2>
-              <ul>
-                {teamData.roster.entries.map((e) => (
-                  <li key={e.playerId}>{e.playerPoolEntry.player.fullName}</li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <p>Unable to fetch your team data.</p>
-          )}
+          <h2>Your Team Roster</h2>
+          <ul>
+            {teamData.roster.entries.map((e) => (
+              <li key={e.playerId}>{e.playerPoolEntry.player.fullName}</li>
+            ))}
+          </ul>
         </>
+      ) : (
+        <p>Unable to fetch your team data.</p>
       )}
     </div>
   );

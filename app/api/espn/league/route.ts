@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getLeagueData, setEspnCookies, getTeamData } from "@/lib/api/espn";
+import { getLeagueData, setEspnCookies } from "@/lib/api/espn";
 
 export async function GET(request: Request) {
   try {
