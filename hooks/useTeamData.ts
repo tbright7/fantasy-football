@@ -1,14 +1,16 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { TeamDataResponse } from "@/types";
-export const useTeamData = (
-  leagueId: string | null,
-  teamId: number | null,
-  espn_s2: string | null,
-  swid: string | null
-) => {
+import { getCookieValue } from "@/lib/utils";
+export const useTeamData = (teamId: number) => {
   const [teamData, setTeamData] = useState<TeamDataResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true); // Add loading state
+
+  const leagueId = getCookieValue("leagueId");
+  const espn_s2 = getCookieValue("espn_s2");
+  const swid = getCookieValue("swid");
 
   useEffect(() => {
     const fetchTeamData = async () => {

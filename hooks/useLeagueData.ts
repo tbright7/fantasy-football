@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { LeagueDataResponse } from "@/types";
 export const useLeagueData = (
