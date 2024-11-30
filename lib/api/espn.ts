@@ -17,7 +17,7 @@ export function setEspnCookies(espn_s2: string, swid: string) {
 
 export async function getLeagueData(leagueId: string, seasonId = 2024) {
   const response = await espnApi.get(
-    `${seasonId}/segments/0/leagues/${leagueId}`
+    `${seasonId}/segments/0/leagues/${leagueId}?view=mDraftDetail&view=mLiveScoring&view=mMatchupScore&view=mPendingTransactions&view=mPositionalRatings&view=mRoster&view=mSettings&view=mTeam&view=modular&view=mNav`
   );
   return response.data;
 }

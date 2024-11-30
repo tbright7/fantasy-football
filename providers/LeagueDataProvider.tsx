@@ -1,23 +1,52 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { getCookieValue } from "@/lib/utils";
+import { Team, LeagueDataResponse } from "@/types";
 
-const LeagueDataContext = createContext(null);
+interface LeagueContextValue {
+  leagueData: LeagueDataResponse | null;
+  loading: boolean;
+  error: string | null;
+  teamId: number | null;
+  team: Team | null;
+  teams: Team[] | null;
+}
+
+const defaultValue: LeagueContextValue = {
+  leagueData: null,
+  loading: false,
+  error: null,
+  teamId: null,
+  team: null,
+  teams: null,
+};
+
+const LeagueDataContext = createContext<LeagueContextValue>(defaultValue);
+
+function getCookieValue(name: string): string | null {
+  if (typeof document === "undefined") return null; // Prevent server-side access
+  const cookie = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${name}=`));
+  return cookie ? cookie.split("=")[1] : null;
+}
 
 export function LeagueDataProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [leagueData, setLeagueData] = useState(null);
-  const [team, setTeam] = useState(null);
-  const [teamId, setTeamId] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [leagueData, setLeagueData] = useState<LeagueDataResponse | null>(null);
+  const [team, setTeam] = useState<Team | null>(null);
+  const [teams, setTeams] = useState<Team[] | null>(null);
+  const [teamId, setTeamId] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLeagueData = async () => {
+      if (typeof document === "undefined") return;
+
       try {
         const leagueId = getCookieValue("leagueId");
         const espn_s2 = getCookieValue("espn_s2");
@@ -38,9 +67,11 @@ export function LeagueDataProvider({
         }
 
         const data = await response.json();
-        const userTeam = data.data.teams.find((team: any) =>
+        const userTeam = data.data.teams.find((team: Team) =>
           team.owners.includes(swid)
         );
+
+        setTeams(data.data.teams);
         setTeam(userTeam);
         setTeamId(userTeam.id);
         setLeagueData(data.data);
@@ -56,7 +87,7 @@ export function LeagueDataProvider({
 
   return (
     <LeagueDataContext.Provider
-      value={{ leagueData, loading, error, teamId, team }}
+      value={{ leagueData, loading, error, teamId, team, teams }}
     >
       {children}
     </LeagueDataContext.Provider>
