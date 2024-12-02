@@ -5,7 +5,7 @@ import { Team, LeagueDataResponse } from "@/types";
 
 interface LeagueContextValue {
   leagueData: LeagueDataResponse | null;
-  loading: boolean;
+  isLeagueDataLoading: boolean;
   error: string | null;
   teamId: number | null;
   team: Team | null;
@@ -14,7 +14,7 @@ interface LeagueContextValue {
 
 const defaultValue: LeagueContextValue = {
   leagueData: null,
-  loading: false,
+  isLeagueDataLoading: true, // Initially true as data is not yet loaded
   error: null,
   teamId: null,
   team: null,
@@ -40,12 +40,14 @@ export function LeagueDataProvider({
   const [team, setTeam] = useState<Team | null>(null);
   const [teams, setTeams] = useState<Team[] | null>(null);
   const [teamId, setTeamId] = useState<number | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLeagueDataLoading, setIsLeagueDataLoading] = useState<boolean>(true); // Track loading state
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLeagueData = async () => {
       if (typeof document === "undefined") return;
+
+      setIsLeagueDataLoading(true); // Set loading to true when fetching starts
 
       try {
         const leagueId = getCookieValue("leagueId");
@@ -73,12 +75,12 @@ export function LeagueDataProvider({
 
         setTeams(data.data.teams);
         setTeam(userTeam);
-        setTeamId(userTeam.id);
+        setTeamId(userTeam?.id || null); // Handle case where userTeam might be null
         setLeagueData(data.data);
       } catch (err: any) {
         setError(err.message || "An unknown error occurred.");
       } finally {
-        setLoading(false);
+        setIsLeagueDataLoading(false); // Set loading to false when fetching is complete
       }
     };
 
@@ -87,7 +89,7 @@ export function LeagueDataProvider({
 
   return (
     <LeagueDataContext.Provider
-      value={{ leagueData, loading, error, teamId, team, teams }}
+      value={{ leagueData, isLeagueDataLoading, error, teamId, team, teams }}
     >
       {children}
     </LeagueDataContext.Provider>

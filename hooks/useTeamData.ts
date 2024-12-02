@@ -52,3 +52,4 @@ export const useTeamData = (teamId: number | null) => {
 
   return { teamData, error, isTeamDataLoading: loading };
 };
+

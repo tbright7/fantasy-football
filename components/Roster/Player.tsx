@@ -1,13 +1,14 @@
 import React from "react";
 import { RosterEntry } from "@/types";
+import { positionMap } from "@/constants";
 function Player({
   entry,
   scoringPeriodId,
   seasonId,
 }: {
   entry: RosterEntry;
-  scoringPeriodId: number;
-  seasonId: number;
+  scoringPeriodId: number | undefined;
+  seasonId: number | undefined;
 }) {
   function getCurrentScoringPeriodPoints() {
     return entry.playerPoolEntry.player.stats.filter(
@@ -38,14 +39,18 @@ function Player({
       ?.appliedTotal.toFixed(2) ?? "-";
   const seasonAverage = getSeasonAveragePoints() ?? "-";
   const { positionalRanking, totalRanking } = entry.playerPoolEntry.ratings[0];
+
+  const defaultPosition =
+    positionMap[entry.playerPoolEntry.player.defaultPositionId] ?? "-";
   return (
-    <tr>
-      <td>{entry.playerPoolEntry.player.fullName} </td>
-      <td>{projectedPoints} </td>
-      <td>{actualPoints} </td>
-      <td>{seasonAverage}</td>
-      <td>{positionalRanking} </td>
-      <td>{totalRanking}</td>
+    <tr className="leading-4">
+      <td className="px-4 py-0">{entry.playerPoolEntry.player.fullName}</td>
+      <td className="px-4 py-0">{defaultPosition}</td>
+      <td className="text-right px-4 py-0">{projectedPoints}</td>
+      <td className="text-right px-4 py-0">{actualPoints}</td>
+      <td className="text-right px-4 py-0">{seasonAverage}</td>
+      <td className="text-right px-4 py-0">{positionalRanking}</td>
+      <td className="text-right px-4 py-0">{totalRanking}</td>
     </tr>
   );
 }
