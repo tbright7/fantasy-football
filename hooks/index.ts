@@ -1,3 +1,3 @@
 export * from "./useLeagueData";
 export * from "./useTeamData";
-export * from "./fetchTeamData";
+export * from "./useFreeAgentData";

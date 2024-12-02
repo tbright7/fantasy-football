@@ -10,7 +10,6 @@ import SkeletonTable from "../SkeletonTable";
 export function Roster() {
   const { teamId, leagueData, isLeagueDataLoading } = useLeagueDataContext();
   const { teamData, isTeamDataLoading } = useTeamData(teamId);
-
   const TableCard = ({ children }: { children: React.ReactNode }) => (
     <div className="block w-full max-w-5xl p-6 bg-white border border-gray-200 rounded-lg shadow">
       {children}
