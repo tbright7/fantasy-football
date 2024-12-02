@@ -3,8 +3,7 @@ import React from "react";
 import { useLeagueDataContext } from "@/providers/LeagueDataProvider";
 
 function TeamName() {
-  const { team, leagueData } = useLeagueDataContext();
-  console.log(leagueData);
+  const { team } = useLeagueDataContext();
   if (team) {
     return <div className="ml-8">{team.name}</div>;
   }

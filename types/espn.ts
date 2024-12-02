@@ -534,7 +534,7 @@ export interface TeamDataResponse {
   };
 }
 
-interface RosterEntry {
+export interface RosterEntry {
   acquisitionDate: number;
   acquisitionType: string;
   injuryStatus: string;

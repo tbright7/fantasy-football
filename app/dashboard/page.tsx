@@ -1,8 +1,7 @@
 "use client";
-
 import { useTeamData } from "@/hooks";
 import { useLeagueDataContext } from "@/providers/LeagueDataProvider";
-
+import { Roster } from "@/components";
 const DashboardPage = () => {
   const {
     teamId,
@@ -11,11 +10,9 @@ const DashboardPage = () => {
     error,
   } = useLeagueDataContext();
   const { teamData, isTeamDataLoading } = useTeamData(teamId);
-
   if (isLeagueLoading || isTeamDataLoading) {
     return <p>Loading...</p>;
   }
-  console.log(teamId);
   if (error) {
     return <p>Error: {error}</p>;
   }
@@ -27,14 +24,14 @@ const DashboardPage = () => {
   return (
     <div>
       <h1>Fantasy Dashboard</h1>
-      {teamData ? (
+      {teamData && teamId ? (
         <>
           <h2>Your roster</h2>
-          <ul>
-            {teamData.roster.entries.map((e) => (
-              <li key={e.playerId}>{e.playerPoolEntry.player.fullName}</li>
-            ))}
-          </ul>
+          <Roster
+            teamId={teamId}
+            scoringPeriodId={leagueData.scoringPeriodId}
+            seasonId={leagueData.seasonId}
+          />
         </>
       ) : (
         <p>Unable to fetch your team data.</p>

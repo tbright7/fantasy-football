@@ -1,7 +1,5 @@
 import axios from "axios";
 
-// https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2024/segments/0/leagues/1892995870?rosterForTeamId=9&view=mDraftDetail&view=mLiveScoring&view=mMatchupScore&view=mPendingTransactions&view=mPositionalRatings&view=mRoster&view=mSettings&view=mTeam&view=modular&view=mNav
-
 const BASE_URL =
   "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/";
 
@@ -28,8 +26,7 @@ export async function getTeamData(
   seasonId = 2024
 ) {
   const response = await espnApi.get(
-    `${seasonId}/segments/0/leagues/${leagueId}/teams/${teamId}?view=mRoster`
+    `${seasonId}/segments/0/leagues/${leagueId}/teams/${teamId}?view=mRoster&`
   );
-
   return response.data;
 }
