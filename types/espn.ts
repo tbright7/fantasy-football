@@ -12,6 +12,7 @@ export interface LeagueDataResponse {
   settings: Settings;
   status: StatusClass;
   teams: Team[];
+  userTeam: Team;
 }
 
 export interface DraftDetail {
@@ -85,15 +86,6 @@ export interface Item {
   toLineupSlotId: number;
   toTeamId: number;
   type: string;
-}
-
-export interface PositionAgainstOpponent {
-  positionalRatings: { [key: string]: PositionalRating };
-}
-
-export interface PositionalRating {
-  average: number;
-  ratingsByOpponent: { [key: string]: RatingsByOpponent };
 }
 
 export interface RatingsByOpponent {
@@ -631,4 +623,101 @@ export interface Stat {
 export enum RankType {
   Ppr = "PPR",
   Standard = "STANDARD",
+}
+
+export interface FreeAgentDataResponse {
+  players: PlayerElement[];
+  positionAgainstOpponent: PositionAgainstOpponent;
+}
+
+export interface PlayerElement {
+  draftAuctionValue: number;
+  id: number;
+  keeperValue: number;
+  keeperValueFuture: number;
+  lineupLocked: boolean;
+  onTeamId: number;
+  player: PlayerPlayer;
+  ratings: Ratings;
+  rosterLocked: boolean;
+  status: string;
+  tradeLocked: boolean;
+  waiverProcessDate: number;
+}
+
+export interface PlayerPlayer {
+  active: boolean;
+  defaultPositionId: number;
+  draftRanksByRankType: DraftRanksByRankType;
+  droppable: boolean;
+  eligibleSlots: number[];
+  firstName: string;
+  fullName: string;
+  id: number;
+  injured: boolean;
+  lastName: string;
+  ownership: Ownership;
+  proTeamId: number;
+  rankings: Rankings;
+  seasonOutlook: string;
+  stats: Stat[];
+}
+
+export interface DraftRanksByRankType {
+  STANDARD: Ppr;
+  PPR: Ppr;
+}
+
+export interface Ppr {
+  auctionValue: number;
+  published: boolean;
+  rank: number;
+  rankSourceId: number;
+  rankType: RankType;
+  slotId: number;
+  averageRank?: number;
+}
+
+export interface Ownership {
+  activityLevel: null;
+  auctionValueAverage: number;
+  auctionValueAverageChange: number;
+  averageDraftPosition: number;
+  averageDraftPositionPercentChange: number;
+  date: number;
+  leagueType: number;
+  percentChange: number;
+  percentOwned: number;
+  percentStarted: number;
+}
+
+export interface Rankings {
+  "13": Ppr[];
+}
+
+export interface Stat {
+  appliedAverage?: number;
+  appliedTotal: number;
+  externalId: string;
+  id: string;
+  proTeamId: number;
+  scoringPeriodId: number;
+  seasonId: number;
+  statSourceId: number;
+  statSplitTypeId: number;
+  stats: { [key: string]: number };
+}
+
+export interface PositionAgainstOpponent {
+  positionalRatings: { [key: string]: PositionalRating };
+}
+
+export interface PositionalRating {
+  average: number;
+  ratingsByOpponent: { [key: string]: RatingsByOpponent };
+}
+
+export interface RatingsByOpponent {
+  average: number;
+  rank: number;
 }

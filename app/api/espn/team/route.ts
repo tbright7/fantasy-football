@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { setEspnCookies, getTeamData } from "@/lib/api/espn";
-
-export async function GET(request: Request) {
+import { fetchLeagueData } from "@/lib/api";
+import { cookies } from "next/headers";
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const leagueId = searchParams.get("leagueId");
-    const espn_s2 = searchParams.get("espn_s2");
-    const swid = searchParams.get("swid");
-    const teamId = searchParams.get("teamId");
-    if (!leagueId || !espn_s2 || !swid || !teamId) {
+    const cookieStore = await cookies();
+    const espn_s2 = cookieStore.get("espn_s2")?.value;
+    const leagueId = cookieStore.get("leagueId")?.value;
+    const swid = cookieStore.get("swid")?.value;
+    const teamId = cookieStore.get("teamId")?.value;
+
+    if (!leagueId || !espn_s2 || !swid) {
       return NextResponse.json(
         { error: "Missing required parameters" },
         { status: 400 }
@@ -16,9 +18,31 @@ export async function GET(request: Request) {
     }
 
     setEspnCookies(espn_s2, swid);
-    const leagueData = await getTeamData(leagueId, teamId);
 
-    return NextResponse.json({ data: leagueData });
+    let finalTeamId = teamId;
+
+    if (!finalTeamId) {
+      console.log("TeamId not provided, fetching league data...");
+      const leagueData = await fetchLeagueData();
+
+      const team = leagueData?.teams?.find((team) =>
+        team.owners?.includes(swid)
+      );
+
+      if (team) {
+        finalTeamId = team?.id.toString();
+        console.log(`Fetched teamId: ${finalTeamId}`);
+      } else {
+        return NextResponse.json(
+          { error: "Failed to find team with the given swid" },
+          { status: 500 }
+        );
+      }
+    }
+
+    const teamData = await getTeamData(leagueId, finalTeamId);
+
+    return NextResponse.json({ data: teamData });
   } catch (error) {
     console.error("Error fetching league data:", error);
     return NextResponse.json(

@@ -25,7 +25,7 @@ const SkeletonTable: React.FC<SkeletonTableProps> = ({
           {Array.from({ length: rows }).map((_, rowIndex) => (
             <tr key={rowIndex} className="border-b last:border-none leading-4">
               {Array.from({ length: columns }).map((_, colIndex) => (
-                <td key={colIndex} className="px-4 py-1">
+                <td key={colIndex} className="px-4 py-0">
                   <div className="w-full h-4 bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 bg-[length:200%_100%] animate-shimmer rounded-md"></div>
                 </td>
               ))}

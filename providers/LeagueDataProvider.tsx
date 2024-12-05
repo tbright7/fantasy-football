@@ -60,9 +60,7 @@ export function LeagueDataProvider({
           );
         }
 
-        const response = await fetch(
-          `/api/espn/league?leagueId=${leagueId}&espn_s2=${espn_s2}&swid=${swid}`
-        );
+        const response = await fetch(`/api/espn/league`);
 
         if (!response.ok) {
           throw new Error(`Error fetching league data: ${response.status}`);

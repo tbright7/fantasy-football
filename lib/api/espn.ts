@@ -1,3 +1,8 @@
+import {
+  FreeAgentDataResponse,
+  LeagueDataResponse,
+  TeamDataResponse,
+} from "@/types";
 import axios from "axios";
 
 const BASE_URL =
@@ -13,7 +18,10 @@ export function setEspnCookies(espn_s2: string, swid: string) {
   ] = `espn_s2=${espn_s2}; swid=${swid}`;
 }
 
-export async function getLeagueData(leagueId: string, seasonId = 2024) {
+export async function getLeagueData(
+  leagueId: string,
+  seasonId = 2024
+): Promise<LeagueDataResponse> {
   const response = await espnApi.get(
     `${seasonId}/segments/0/leagues/${leagueId}?view=mDraftDetail&view=mLiveScoring&view=mMatchupScore&view=mPendingTransactions&view=mPositionalRatings&view=mRoster&view=mSettings&view=mTeam&view=modular&view=mNav`
   );
@@ -24,7 +32,7 @@ export async function getTeamData(
   leagueId: string,
   teamId: string,
   seasonId = 2024
-) {
+): Promise<TeamDataResponse> {
   const response = await espnApi.get(
     `${seasonId}/segments/0/leagues/${leagueId}/teams/${teamId}?view=mRoster&`
   );
@@ -35,7 +43,7 @@ export async function getFreeAgents(
   leagueId: string,
   scoringPeriodId: string,
   seasonId = 2024
-) {
+): Promise<FreeAgentDataResponse> {
   const filterData = {
     players: {
       filterStatus: {
@@ -74,13 +82,12 @@ export async function getFreeAgents(
     },
   };
   const response = await espnApi.get(
-    `${seasonId}/segments/0/leagues/${leagueId}?scoringPeriodId=13&view=kona_player_info`,
+    `${seasonId}/segments/0/leagues/${leagueId}?scoringPeriodId=${scoringPeriodId}&view=kona_player_info`,
     {
       headers: {
         "x-fantasy-filter": JSON.stringify(filterData),
       },
     }
   );
-  console.log(response.data.players);
   return response.data;
 }

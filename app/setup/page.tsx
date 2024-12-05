@@ -21,20 +21,6 @@ const SetupPage = () => {
     document.cookie = `seasonId=${seasonId}; path=/`;
 
     try {
-      // Send data to the server to create a JWT token
-      const response = await fetch(
-        `/api/auth/create-token?leagueId=${leagueId}&espn_s2=${espn_s2}&swid=${swid}&seasonId=${seasonId}`
-      );
-      console.log(response);
-      if (!response.ok) {
-        throw new Error("Failed to create JWT token");
-      }
-
-      const { token } = await response.json();
-
-      // Store the JWT token in a cookie (optional, you could also store it in localStorage)
-      document.cookie = `authToken=${token}; path=/`;
-
       // Redirect to the dashboard
       router.push("/dashboard");
     } catch (error) {

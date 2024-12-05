@@ -1,17 +1,13 @@
-"use client";
 import React from "react";
-import { useLeagueDataContext } from "@/providers/LeagueDataProvider";
+import { Team } from "@/types";
 
-function Record() {
-  const { team } = useLeagueDataContext();
-  if (team) {
-    return (
-      <sup>
-        ({team.record.overall.wins} - {team.record.overall.losses} -
-        {team.record.overall.ties})
-      </sup>
-    );
-  }
+function Record({ userTeam }: { userTeam: Team }) {
+  return (
+    <sup>
+      ({userTeam?.record.overall.wins} - {userTeam?.record.overall.losses} -
+      {userTeam?.record.overall.ties})
+    </sup>
+  );
 }
 
 export default Record;

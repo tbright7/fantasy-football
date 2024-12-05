@@ -1,58 +1,54 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import { getFreeAgents, setEspnCookies } from "@/lib/api/espn";
+import { setEspnCookies, getFreeAgents } from "@/lib/api/espn";
+import { fetchLeagueData } from "@/lib/api";
+import { cookies } from "next/headers";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    // Extract the Authorization header
-    const authHeader = request.headers.get("Authorization");
-    let leagueId: string | null = null;
-    let espn_s2: string | null = null;
-    let swid: string | null = null;
-    let scoringPeriodId: string | null = null;
+    const cookieStore = await cookies();
+    const espn_s2 = cookieStore.get("espn_s2")?.value;
+    const leagueId = cookieStore.get("leagueId")?.value;
+    const swid = cookieStore.get("swid")?.value;
+    const scoringPeriodId = cookieStore.get("currentScoringPeriodId")?.value;
+    const seasonId = cookieStore.get("seasonId")?.value;
 
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      const token = authHeader.slice(7); // Remove "Bearer " from the header
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
-          espn_s2: string;
-          swid: string;
-          leagueId: string;
-        };
-        espn_s2 = decoded.espn_s2;
-        swid = decoded.swid;
-        leagueId = decoded.leagueId;
-      } catch (error) {
-        console.error("Invalid JWT token:", error);
-        return NextResponse.json(
-          { error: "Invalid or expired token" },
-          { status: 401 }
-        );
-      }
-    } else {
-      // Fallback to query parameters for cookies if Bearer Token isn't provided
-      const { searchParams } = new URL(request.url);
-      leagueId = searchParams.get("leagueId");
-      espn_s2 = searchParams.get("espn_s2");
-      swid = searchParams.get("swid");
-      scoringPeriodId = searchParams.get("scoringPeriodId");
-    }
-
-    // Ensure all required parameters are present
-    if (!leagueId || !espn_s2 || !swid || !scoringPeriodId) {
+    if (!leagueId || !espn_s2 || !swid) {
+      console.log("missing parameters", leagueId, espn_s2, swid);
       return NextResponse.json(
         { error: "Missing required parameters" },
         { status: 400 }
       );
     }
 
-    // Set ESPN cookies for API calls
     setEspnCookies(espn_s2, swid);
+    let finalScoringPeriodId = scoringPeriodId;
+    let finalSeasonId = seasonId;
 
-    // Fetch league data
-    const freeAgentData = await getFreeAgents(leagueId, scoringPeriodId);
+    if (!scoringPeriodId || seasonId) {
+      const leagueData = await fetchLeagueData();
 
-    return NextResponse.json({ data: freeAgentData });
+      if (leagueData.seasonId && leagueData.scoringPeriodId) {
+        finalScoringPeriodId = leagueData.scoringPeriodId.toString();
+        finalSeasonId = leagueData.seasonId.toString();
+      } else {
+        return NextResponse.json(
+          { error: "Failed to find seasonId or scoringPeriodId" },
+          { status: 500 }
+        );
+      }
+    }
+
+    if (finalSeasonId) {
+      cookieStore.set("seasonId", finalSeasonId);
+    }
+    if (finalScoringPeriodId !== undefined) {
+      cookieStore.set("scoringPeriodId", finalScoringPeriodId);
+    }
+
+    if (finalScoringPeriodId !== undefined) {
+      const freeAgentData = await getFreeAgents(leagueId, finalScoringPeriodId);
+      return NextResponse.json({ data: freeAgentData });
+    }
   } catch (error) {
     console.error("Error fetching free agent data:", error);
     return NextResponse.json(

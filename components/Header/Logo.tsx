@@ -1,12 +1,8 @@
-"use client";
 import React from "react";
-import { useLeagueDataContext } from "@/providers/LeagueDataProvider";
+import { Team } from "@/types";
 
-function Logo() {
-  const { team } = useLeagueDataContext();
-  if (team) {
-    return <img src={team.logo} className="h-16" />;
-  }
+function Logo({ userTeam }: { userTeam: Team }) {
+  return <img src={userTeam?.logo} className="h-16" />;
 }
 
 export default Logo;
