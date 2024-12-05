@@ -1,6 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { ERROR_MESSAGES } from "../error";
-import { cookies } from "next/headers";
 
 // Centralized function for fetching data with retries, timeouts, and custom headers.
 export const fetchDataWithRetry = async <T>(
