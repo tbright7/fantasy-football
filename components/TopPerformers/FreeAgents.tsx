@@ -7,7 +7,7 @@ import {
 import { createColumns } from "./createColumns";
 import { Table } from "../Table";
 import Card from "../Card";
-import { useState } from "react";
+import { act, useState } from "react";
 import Tabs from "./Tabs";
 import { TeamsMetadata } from "@/lib/utils/getTeamMetadata";
 
@@ -25,7 +25,6 @@ export function FreeAgents({
   freeAgentData,
   leagueData,
   teamsMetadata,
-  sortedPointsByPosition,
 }: {
   freeAgentData: FreeAgentDataResponse;
   leagueData: LeagueDataResponse;
@@ -36,10 +35,17 @@ export function FreeAgents({
   function getPoints(entry: PlayerElement, statSourceId: number) {
     const projectedStat = entry.player.stats.find(
       (stat) =>
-        stat.scoringPeriodId === leagueData?.scoringPeriodId &&
+        stat.scoringPeriodId === leagueData?.scoringPeriodId - 1 &&
         stat.statSourceId === statSourceId
     );
     return projectedStat ? projectedStat.appliedTotal : 0;
+  }
+
+  function getOwner(player: PlayerElement) {
+    return (
+      leagueData.teams.find((team) => team.id === player.onTeamId)?.name ??
+      "Free Agent"
+    );
   }
 
   function getTopPlayers(category: string, positionId?: number) {
@@ -47,23 +53,18 @@ export function FreeAgents({
 
     const players = freeAgentData.players.map((agent) => ({
       ...agent,
-      player: {
-        ...agent.player,
-        projectedPoints: getPoints(agent, 1),
-        actualPoints: getPoints(agent, 0),
-      },
+      projectedPoints: getPoints(agent, 1),
+      actualPoints: getPoints(agent, 0),
+      owner: getOwner(agent),
     }));
 
     if (positionId) {
       return players
         .filter((player) => player.player.defaultPositionId === positionId)
-        .sort((a, b) => b.player.projectedPoints - a.player.projectedPoints)
         .slice(0, 10);
     }
 
-    return players
-      .sort((a, b) => b.player.projectedPoints - a.player.projectedPoints)
-      .slice(0, 10);
+    return players.slice(0, 10);
   }
 
   const activePlayers =
@@ -74,14 +75,10 @@ export function FreeAgents({
           TAB_CATEGORIES.find((tab) => tab.id === activeTab)?.positionId
         );
 
-  const columns = createColumns(
-    teamsMetadata,
-    leagueData.scoringPeriodId,
-    sortedPointsByPosition
-  );
+  const columns = createColumns(teamsMetadata, leagueData.scoringPeriodId);
 
   return (
-    <Card header="Top Free Agents" collapsible className="max-w-xl">
+    <Card header="Last Weeks Top Performers" collapsible className="max-w-md">
       <div className="w-full">
         <div className="overflow-x-auto">
           <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />

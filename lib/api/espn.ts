@@ -57,6 +57,7 @@ export async function getFreeAgents(
       filterStatus: {
         value: ["FREEAGENT", "WAIVERS"],
       },
+      filterInjured: { value: false },
       filterSlotIds: {
         value: [
           0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
@@ -87,10 +88,88 @@ export async function getFreeAgents(
       //   value: 2,
       //   additionalValue: ["002024", "102024", "002023", "11202413", "022024"],
       // },
+
+      // sort by stats
+
+      // sortAppliedStatTotal: null,
+      // sortAppliedStatTotalForScoringPeriodId: {
+      //   sortAsc: false,
+      //   sortPriority: 1,
+      //   value: scoringPeriodId,
+      // },
+      // sortStatId: null,
+      // sortStatIdForScoringPeriodId: scoringPeriodId,
     },
   };
   const response = await espnApi.get(
     `${seasonId}/segments/0/leagues/${leagueId}?scoringPeriodId=${scoringPeriodId}&view=kona_player_info`,
+    {
+      headers: {
+        "x-fantasy-filter": JSON.stringify(filterData),
+      },
+    }
+  );
+  return response.data;
+}
+
+export async function getTopPerformers(
+  leagueId: string,
+  scoringPeriodId: number,
+  seasonId = 2024
+): Promise<FreeAgentDataResponse> {
+  const filterData = {
+    players: {
+      filterSlotIds: {
+        value: [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          23,
+          24, // Includes all potential slots
+        ],
+      },
+      filterStatsForCurrentSeasonScoringPeriodId: {
+        value: [scoringPeriodId - 1], // Previous week's scoring period
+      },
+      sortAppliedStatTotal: null,
+      sortAppliedStatTotalForScoringPeriodId: {
+        sortAsc: false, // Descending order for top scores
+        sortPriority: 1,
+        value: scoringPeriodId - 1, // Previous week's scoring period
+      },
+      sortStatId: null,
+      sortStatIdForScoringPeriodId: null,
+      sortPercOwned: {
+        sortPriority: 3,
+        sortAsc: false, // Sort by ownership as a fallback
+      },
+      limit: 1000, // Adjust limit as needed (e.g., 100 for top 100 players)
+      filterRanksForSlotIds: {
+        value: [0, 2, 4, 6, 17, 16, 8, 9, 10, 12, 13, 24, 11, 14, 15], // Relevant slot positions
+      },
+    },
+  };
+
+  // 2024/segments/0/leagues/1892995870?view=kona_player_info
+  const response = await espnApi.get(
+    `${seasonId}/segments/0/leagues/${leagueId}?view=kona_player_info`,
     {
       headers: {
         "x-fantasy-filter": JSON.stringify(filterData),
