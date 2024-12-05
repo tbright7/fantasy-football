@@ -9,6 +9,7 @@ import { Table } from "../Table";
 import Card from "../Card";
 import { useState } from "react";
 import Tabs from "./Tabs";
+import { TeamsMetadata } from "@/lib/utils/getTeamMetadata";
 
 const TAB_CATEGORIES = [
   { label: "Top Overall", id: "overall" },
@@ -23,9 +24,11 @@ const TAB_CATEGORIES = [
 export function FreeAgents({
   freeAgentData,
   leagueData,
+  teamsMetadata,
 }: {
   freeAgentData: FreeAgentDataResponse;
   leagueData: LeagueDataResponse;
+  teamsMetadata: TeamsMetadata;
 }) {
   const [activeTab, setActiveTab] = useState("overall");
 
@@ -67,7 +70,7 @@ export function FreeAgents({
           TAB_CATEGORIES.find((tab) => tab.id === activeTab)?.positionId
         );
 
-  const columns = createColumns();
+  const columns = createColumns(teamsMetadata, leagueData.scoringPeriodId);
 
   return (
     <Card header="Top Free Agents" collapsible className="max-w-xl">

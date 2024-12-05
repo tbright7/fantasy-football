@@ -1,7 +1,12 @@
 import { PlayerElement } from "@/types";
 import { positionMap } from "@/constants";
 import { Column } from "../Table";
-export const createColumns = (): Column<PlayerElement>[] => {
+import { TeamsMetadata, getOpponentName } from "@/lib/utils";
+
+export const createColumns = (
+  teamsMetadata: TeamsMetadata,
+  scoringPeriodId: number
+): Column<PlayerElement>[] => {
   return [
     {
       header: "Player Name",
@@ -22,6 +27,14 @@ export const createColumns = (): Column<PlayerElement>[] => {
       header: "Actual Score",
       accessor: "actualPoints",
       render: (value: number) => value.toFixed(2),
+      className: "text-right",
+    },
+    {
+      header: "Opponent",
+      accessor: "player.proTeamId",
+      render: (teamId: number) =>
+        getOpponentName(teamsMetadata, teamId, scoringPeriodId),
+
       className: "text-right",
     },
   ];

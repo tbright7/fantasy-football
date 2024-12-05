@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { LeagueDataProvider } from "@/providers";
 import { Header } from "@/components";
 
 const geistSans = localFont({
@@ -31,23 +30,21 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-amber-400 flex flex-col`}
       >
-        <LeagueDataProvider>
-          <div className="flex min-h-screen">
-            {/* Sidebar */}
-            <div
-              className={`${
-                isSidebarOpen ? "w-64" : "w-16"
-              } bg-gray-800 text-white transition-width duration-300 flex flex-col`}
-            ></div>
-            <div className="flex flex-col min-h-screen w-full">
-              <Header />
-              <main className="flex-1 p-4">{children}</main>
-              <footer className="bg-gray-300 p-4">
-                <p>Footer content</p>
-              </footer>
-            </div>
+        <div className="flex min-h-screen">
+          {/* Sidebar */}
+          <div
+            className={`${
+              isSidebarOpen ? "w-64" : "w-16"
+            } bg-gray-800 text-white transition-width duration-300 flex flex-col`}
+          ></div>
+          <div className="flex flex-col min-h-screen w-full">
+            <Header />
+            <main className="flex-1 p-4">{children}</main>
+            <footer className="bg-gray-300 p-4">
+              <p>Footer content</p>
+            </footer>
           </div>
-        </LeagueDataProvider>
+        </div>
       </body>
     </html>
   );

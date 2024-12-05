@@ -2,6 +2,7 @@ import {
   FreeAgentDataResponse,
   LeagueDataResponse,
   TeamDataResponse,
+  TeamsScheduleResponse,
 } from "@/types";
 import axios from "axios";
 
@@ -36,6 +37,13 @@ export async function getTeamData(
   const response = await espnApi.get(
     `${seasonId}/segments/0/leagues/${leagueId}/teams/${teamId}?view=mRoster&`
   );
+  return response.data;
+}
+
+export async function getTeamsSchedule(
+  seasonId: string
+): Promise<TeamsScheduleResponse> {
+  const response = await espnApi.get(`${seasonId}?view=proTeamSchedules_wl`);
   return response.data;
 }
 
