@@ -2,15 +2,18 @@ import React from "react";
 import { createColumns } from "./createColumns";
 import { Table } from "../Table";
 import { Card } from "../Card";
-import { fetchLeagueData, fetchTeamData } from "@/lib/api";
+import { fetchLeagueData, fetchTeamData, fetchTeamsSchedule } from "@/lib/api";
+import { getTeamMetadata } from "@/lib/utils";
 
 export async function Roster() {
   const leagueData = await fetchLeagueData();
   const teamData = await fetchTeamData();
-
+  const teamsSchedule = await fetchTeamsSchedule();
+  const teamsMetadata = getTeamMetadata(teamsSchedule);
   const columns = createColumns(
     leagueData?.scoringPeriodId,
-    leagueData?.seasonId
+    leagueData?.seasonId,
+    teamsMetadata
   );
 
   const cardHeader = "Your Roster";

@@ -1,10 +1,12 @@
 import { positionMap } from "@/constants";
 import { Ratings, RosterEntry, Stat } from "@/types";
 import { Column } from "../Table";
+import { getOpponentName, TeamsMetadata } from "@/lib/utils";
 
 export const createColumns = (
   scoringPeriodId: number | undefined,
-  seasonId: number | undefined
+  seasonId: number | undefined,
+  teamsMetadata: TeamsMetadata
 ): Column<RosterEntry>[] => {
   return [
     {
@@ -16,7 +18,13 @@ export const createColumns = (
       header: "Position",
       accessor: "playerPoolEntry.player.defaultPositionId",
       render: (value: number) => positionMap[value] ?? "-",
-      className: "px-0 py-0", // Fixed typo: changed `clasName` to `className`
+      className: "px-0 py-0", 
+    },
+    {
+      header: "Team",
+      accessor: "playerPoolEntry.player.proTeamId",
+      render: (value: number) => teamsMetadata[value].name,
+      className: "px-0 py-0", 
     },
     {
       header: "Projected Score",
@@ -43,6 +51,17 @@ export const createColumns = (
         return <span className="text-right">{actualPoints}</span>;
       },
       className: "text-right px-0 py-0",
+    },
+    {
+      header: "Opponent",
+      accessor: "playerPoolEntry.player.proTeamId",
+      render: (teamId: number) => {
+        if (scoringPeriodId) {
+          return getOpponentName(teamsMetadata, teamId, scoringPeriodId);
+        }
+        return "-";
+      },
+      className: "text-right",
     },
     {
       header: "Average Score",

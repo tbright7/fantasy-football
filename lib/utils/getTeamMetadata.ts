@@ -58,7 +58,10 @@ export const getOpponentName = (
   scoringPeriodId: number
 ): string | undefined => {
   const team = teamsMetadata[teamId];
-
+  const isByeWeek = team.byeWeek === scoringPeriodId;
+  if (isByeWeek) {
+    return "BYE";
+  }
   const game = team.schedule.find((g) => g.scoringPeriodId === scoringPeriodId);
 
   if (!game) return undefined;

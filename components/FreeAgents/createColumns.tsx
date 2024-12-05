@@ -34,7 +34,6 @@ export const createColumns = (
       accessor: "player.proTeamId",
       render: (teamId: number) =>
         getOpponentName(teamsMetadata, teamId, scoringPeriodId),
-
       className: "text-right",
     },
   ];
