@@ -30,7 +30,7 @@ export const createColumns = (
       header: "Opponent",
       accessor: "player.proTeamId",
       render: (teamId: number) =>
-        getOpponentName(teamsMetadata, teamId, scoringPeriodId),
+        getOpponentName(teamsMetadata, teamId, scoringPeriodId - 1),
     },
   ];
 };

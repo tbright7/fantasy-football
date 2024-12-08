@@ -3,9 +3,7 @@
 import { cookies } from "next/headers";
 import { fetchDataWithRetry } from "./fetchDataWithRetry";
 
-export const fetchTopPerformers = async (
-  endpoint: string = "http://localhost:3000/api/espn/top-performers"
-): Promise<TopPerformersResponse> => {
+export const fetchTopPerformers = async (): Promise<TopPerformersResponse> => {
   const cookieStore = await cookies();
   const swid = cookieStore.get("swid")?.value;
   const leagueId = cookieStore.get("leagueId")?.value;
@@ -16,6 +14,13 @@ export const fetchTopPerformers = async (
   const headers: HeadersInit = {
     Cookie: `espn_s2=${espn_s2}; swid=${swid}; leagueId=${leagueId}; scoringPeriodId=${scoringPeriodId} seasonId=${seasonId}`,
   };
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  if (!baseUrl) {
+    throw new Error("Base URL not defined in environment variables.");
+  }
+
+  const endpoint = `${baseUrl}/api/espn/top-performers`;
 
   return fetchDataWithRetry<TopPerformersResponse>(
     endpoint,
