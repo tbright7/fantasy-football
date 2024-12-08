@@ -1,8 +1,7 @@
-// /2024?view=proTeamSchedules_wl
 import { NextResponse } from "next/server";
 import { setEspnCookies, getTeamsSchedule } from "@/lib/api/espn";
 import { cookies } from "next/headers";
-import { TeamsScheduleResponse } from "@/types";
+import { TeamsScheduleResponse } from "@/types/TeamsScheduleResponse";
 import { fetchLeagueData } from "@/lib/api";
 
 const leagueCache = new Map<

@@ -21,14 +21,14 @@ export async function GET() {
     }
 
     setEspnCookies(espn_s2, swid);
-    let finalScoringPeriodId = scoringPeriodId;
+    let finalScoringPeriodId = parseInt(scoringPeriodId ?? "");
     let finalSeasonId = seasonId;
 
     if (!scoringPeriodId || seasonId) {
       const leagueData = await fetchLeagueData();
 
       if (leagueData.seasonId && leagueData.scoringPeriodId) {
-        finalScoringPeriodId = leagueData.scoringPeriodId.toString();
+        finalScoringPeriodId = leagueData.scoringPeriodId;
         finalSeasonId = leagueData.seasonId.toString();
       } else {
         return NextResponse.json(
@@ -42,7 +42,7 @@ export async function GET() {
       cookieStore.set("seasonId", finalSeasonId);
     }
     if (finalScoringPeriodId !== undefined) {
-      cookieStore.set("scoringPeriodId", finalScoringPeriodId);
+      cookieStore.set("scoringPeriodId", finalScoringPeriodId.toString());
     }
 
     if (finalScoringPeriodId !== undefined) {

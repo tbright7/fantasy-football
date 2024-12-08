@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
-import { FreeAgentDataResponse } from "@/types";
+import { FreeAgentDataResponse } from "@/types/FreeAgentDataResponse";
 import { cookies } from "next/headers";
 import { fetchDataWithRetry } from "./fetchDataWithRetry";
 

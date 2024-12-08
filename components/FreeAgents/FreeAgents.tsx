@@ -1,15 +1,13 @@
 "use client";
-import {
-  FreeAgentDataResponse,
-  LeagueDataResponse,
-  PlayerElement,
-} from "@/types";
+import { FreeAgentDataResponse } from "@/types/FreeAgentDataResponse";
 import { createColumns } from "./createColumns";
 import { Table } from "../Table";
 import Card from "../Card";
 import { useState } from "react";
 import Tabs from "./Tabs";
-import { TeamsMetadata } from "@/lib/utils/getTeamMetadata";
+import { TeamsMetadata, getPlayerPoints } from "@/lib/utils";
+import { LeagueDataResponse } from "@/types/LeagueDataResponse";
+import { TeamDataResponse } from "@/types/TeamDataResponse";
 
 const TAB_CATEGORIES = [
   { label: "Top Overall", id: "overall" },
@@ -25,63 +23,53 @@ export function FreeAgents({
   freeAgentData,
   leagueData,
   teamsMetadata,
-  sortedPointsByPosition,
+  teamData,
 }: {
   freeAgentData: FreeAgentDataResponse;
   leagueData: LeagueDataResponse;
   teamsMetadata: TeamsMetadata;
+  teamData: TeamDataResponse;
 }) {
   const [activeTab, setActiveTab] = useState("overall");
 
-  function getPoints(entry: PlayerElement, statSourceId: number) {
-    const projectedStat = entry.player.stats.find(
-      (stat) =>
-        stat.scoringPeriodId === leagueData?.scoringPeriodId &&
-        stat.statSourceId === statSourceId
-    );
-    return projectedStat ? projectedStat.appliedTotal : 0;
-  }
-
-  function getTopPlayers(category: string, positionId?: number) {
+  function getTopPlayers(positionId?: number) {
     if (!freeAgentData?.players) return [];
-
-    const players = freeAgentData.players.map((agent) => ({
-      ...agent,
-      player: {
-        ...agent.player,
-        projectedPoints: getPoints(agent, 1),
-        actualPoints: getPoints(agent, 0),
-      },
-    }));
+    const players = freeAgentData.players.map((agent) => {
+      const game = getPlayerPoints(agent, leagueData.scoringPeriodId);
+      return {
+        ...agent,
+        player: {
+          ...agent.player,
+          projectedPoints: game.projectedStat,
+          actualPoints: game.actualStats,
+        },
+      };
+    });
 
     if (positionId) {
       return players
         .filter((player) => player.player.defaultPositionId === positionId)
-        .sort((a, b) => b.player.projectedPoints - a.player.projectedPoints)
         .slice(0, 10);
     }
 
-    return players
-      .sort((a, b) => b.player.projectedPoints - a.player.projectedPoints)
-      .slice(0, 10);
+    return players.slice(0, 10);
   }
 
   const activePlayers =
     activeTab === "overall"
-      ? getTopPlayers("overall")
+      ? getTopPlayers()
       : getTopPlayers(
-          activeTab,
           TAB_CATEGORIES.find((tab) => tab.id === activeTab)?.positionId
         );
 
   const columns = createColumns(
     teamsMetadata,
     leagueData.scoringPeriodId,
-    sortedPointsByPosition
+    teamData.positionGroupsByProjectedPoints
   );
 
   return (
-    <Card header="Top Free Agents" collapsible className="max-w-xl">
+    <Card header="Top Free Agents" collapsible className="">
       <div className="w-full">
         <div className="overflow-x-auto">
           <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />

@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { setEspnCookies, getTeamData } from "@/lib/api/espn";
 import { fetchLeagueData } from "@/lib/api";
 import { cookies } from "next/headers";
+import { getPlayerGame, getSortedProjectedPointsByPosition } from "@/lib/utils";
+import { TeamDataResponse } from "@/types/TeamDataResponse";
+
 export async function GET() {
   try {
     const cookieStore = await cookies();
@@ -9,6 +12,9 @@ export async function GET() {
     const leagueId = cookieStore.get("leagueId")?.value;
     const swid = cookieStore.get("swid")?.value;
     const teamId = cookieStore.get("teamId")?.value;
+    const scoringPeriodId = parseInt(
+      cookieStore.get("scoringPeriodId")?.value ?? ""
+    );
 
     if (!leagueId || !espn_s2 || !swid) {
       return NextResponse.json(
@@ -41,8 +47,21 @@ export async function GET() {
     }
 
     const teamData = await getTeamData(leagueId, finalTeamId);
+    teamData.roster.entries.forEach((player) => {
+      const game = getPlayerGame(
+        player.playerPoolEntry.player.stats,
+        scoringPeriodId
+      );
+      player["projectedPoints"] = game.projectedStats?.appliedTotal;
+      player["actualPoints"] = game.actualStats?.appliedTotal;
+    });
 
-    return NextResponse.json({ data: teamData });
+    const response: TeamDataResponse = {
+      ...teamData,
+      positionGroupsByProjectedPoints:
+        getSortedProjectedPointsByPosition(teamData),
+    };
+    return NextResponse.json({ data: response });
   } catch (error) {
     console.error("Error fetching league data:", error);
     return NextResponse.json(

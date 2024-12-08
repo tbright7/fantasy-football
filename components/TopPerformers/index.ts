@@ -1,1 +1,1 @@
-export * from "./FreeAgentsWrapper";
+export * from "./TopPerformersWrapper";

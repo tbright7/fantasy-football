@@ -7,9 +7,10 @@ import { getTeamMetadata } from "@/lib/utils";
 
 export async function Roster() {
   const leagueData = await fetchLeagueData();
-  const teamData = await fetchTeamData();
+  const teamData = await fetchTeamData(leagueData.scoringPeriodId);
   const teamsSchedule = await fetchTeamsSchedule();
   const teamsMetadata = getTeamMetadata(teamsSchedule);
+
   const columns = createColumns(
     leagueData?.scoringPeriodId,
     leagueData?.seasonId,

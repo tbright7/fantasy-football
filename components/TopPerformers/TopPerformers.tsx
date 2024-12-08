@@ -1,15 +1,12 @@
 "use client";
-import {
-  FreeAgentDataResponse,
-  LeagueDataResponse,
-  PlayerElement,
-} from "@/types";
+import { LeagueDataResponse, Team } from "@/types/LeagueDataResponse";
 import { createColumns } from "./createColumns";
 import { Table } from "../Table";
 import Card from "../Card";
-import { act, useState } from "react";
+import { useState } from "react";
 import Tabs from "./Tabs";
 import { TeamsMetadata } from "@/lib/utils/getTeamMetadata";
+import { TopPerformersResponse, PlayerElement } from "@/lib/api";
 
 const TAB_CATEGORIES = [
   { label: "Top Overall", id: "overall" },
@@ -21,12 +18,12 @@ const TAB_CATEGORIES = [
   { label: "Defense/Special Teams", id: "DST", positionId: 16 },
 ];
 
-export function FreeAgents({
-  freeAgentData,
+export function TopPerformers({
+  topPerformersData,
   leagueData,
   teamsMetadata,
 }: {
-  freeAgentData: FreeAgentDataResponse;
+  topPerformersData: TopPerformersResponse;
   leagueData: LeagueDataResponse;
   teamsMetadata: TeamsMetadata;
 }) {
@@ -41,22 +38,22 @@ export function FreeAgents({
     return projectedStat ? projectedStat.appliedTotal : 0;
   }
 
-  function getOwner(player: PlayerElement) {
+  function getOwner(player: PlayerElement, teams: Team[]) {
     return (
-      leagueData.teams.find((team) => team.id === player.onTeamId)?.name ??
-      "Free Agent"
+      teams.find((team) => team.id === player.onTeamId)?.name ?? "Free Agent"
     );
   }
 
   function getTopPlayers(category: string, positionId?: number) {
-    if (!freeAgentData?.players) return [];
-
-    const players = freeAgentData.players.map((agent) => ({
-      ...agent,
-      projectedPoints: getPoints(agent, 1),
-      actualPoints: getPoints(agent, 0),
-      owner: getOwner(agent),
-    }));
+    if (!topPerformersData?.players) return [];
+    const players = topPerformersData.players.map((agent) => {
+      return {
+        ...agent,
+        projectedPoints: getPoints(agent, 1),
+        actualPoints: getPoints(agent, 0),
+        owner: getOwner(agent, leagueData.teams),
+      };
+    });
 
     if (positionId) {
       return players
@@ -78,7 +75,7 @@ export function FreeAgents({
   const columns = createColumns(teamsMetadata, leagueData.scoringPeriodId);
 
   return (
-    <Card header="Last Weeks Top Performers" collapsible className="max-w-md">
+    <Card header="Last Weeks Top Performers" collapsible className="">
       <div className="w-full">
         <div className="overflow-x-auto">
           <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />

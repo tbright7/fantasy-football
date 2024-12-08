@@ -1,9 +1,8 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
-import { LeagueDataResponse } from "@/types";
+import { LeagueDataResponse } from "@/types/LeagueDataResponse";
 import { cookies } from "next/headers";
 import { fetchDataWithRetry } from "./fetchDataWithRetry";
-
 
 export const fetchLeagueData = async (
   endpoint: string = "http://localhost:3000/api/espn/league"

@@ -1,4 +1,4 @@
-import { ProTeam, TeamsScheduleResponse } from "@/types";
+import { TeamsScheduleResponse, ProTeam } from "@/types/TeamsScheduleResponse";
 
 interface OpponentSchedule {
   opponentId: number;
@@ -67,5 +67,5 @@ export const getOpponentName = (
   if (!game) return undefined;
 
   const opponentId = game.opponentId;
-  return teamsMetadata[opponentId]?.name;
+  return teamsMetadata[opponentId]?.abbrev;
 };

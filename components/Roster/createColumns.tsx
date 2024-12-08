@@ -1,5 +1,5 @@
 import { positionMap } from "@/constants";
-import { Ratings, RosterEntry, Stat } from "@/types";
+import { Ratings, Entry, Stat } from "@/types/TeamDataResponse";
 import { Column } from "../Table";
 import { getOpponentName, TeamsMetadata } from "@/lib/utils";
 
@@ -7,24 +7,24 @@ export const createColumns = (
   scoringPeriodId: number | undefined,
   seasonId: number | undefined,
   teamsMetadata: TeamsMetadata
-): Column<RosterEntry>[] => {
+): Column<Entry>[] => {
   return [
     {
       header: "Player Name",
       accessor: "playerPoolEntry.player.fullName",
-      // className: "px-0 py-0",
+      className: "px-1 py-1",
     },
     {
       header: "Position",
       accessor: "playerPoolEntry.player.defaultPositionId",
       render: (value: number) => positionMap[value] ?? "-",
-      className: "px-0 py-0", 
+      className: "px-1 py-1",
     },
     {
       header: "Team",
       accessor: "playerPoolEntry.player.proTeamId",
       render: (value: number) => teamsMetadata[value].name,
-      className: "px-0 py-0", 
+      className: "px-1 py-1",
     },
     {
       header: "Projected Score",
@@ -37,7 +37,7 @@ export const createColumns = (
             ?.appliedTotal?.toFixed(2) ?? "-";
         return projectedPoints;
       },
-      className: "text-right px-0 py-0",
+      className: "text-right px-1 py-1",
     },
     {
       header: "Actual Score",
@@ -50,7 +50,7 @@ export const createColumns = (
             ?.appliedTotal?.toFixed(2) ?? "-";
         return <span className="text-right">{actualPoints}</span>;
       },
-      className: "text-right px-0 py-0",
+      className: "text-right px-1 py-1",
     },
     {
       header: "Opponent",
@@ -61,7 +61,7 @@ export const createColumns = (
         }
         return "-";
       },
-      className: "text-right",
+      className: "px-1 py-1",
     },
     {
       header: "Average Score",
@@ -78,7 +78,7 @@ export const createColumns = (
             ?.appliedAverage?.toFixed(2) ?? "-";
         return <span className="text-right">{seasonAverage}</span>;
       },
-      className: "text-right px-0 py-0",
+      className: "text-right px-1 py-1",
     },
     {
       header: "Positional Ranking",
@@ -88,7 +88,7 @@ export const createColumns = (
           {ratings[0]?.positionalRanking ?? "-"}
         </span>
       ),
-      className: "text-right px-0 py-0",
+      className: "text-right px-1 py-1",
     },
     {
       header: "Overall Ranking",
@@ -96,7 +96,7 @@ export const createColumns = (
       render: (ratings: Ratings) => (
         <span className="text-right">{ratings[0]?.totalRanking ?? "-"}</span>
       ),
-      className: "text-right",
+      className: "text-right px-1 py-1",
     },
   ];
 };

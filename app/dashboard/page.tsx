@@ -1,13 +1,15 @@
-import { FreeAgentsWrapper, Roster } from "@/components";
-import { TopPerformers } from "@/components/TopPerformers";
+import { FreeAgentsWrapper, Roster, TeamData } from "@/components";
+import { TopPerformersWrapper } from "@/components/TopPerformers";
 const DashboardPage = async () => {
   return (
-    <div>
-      <h1>Fantasy Dashboard</h1>
-      <Roster />
+    <div className="flex flex-col gap-1">
+      <div className="w-full flex gap-1">
+        <TeamData />
+        <Roster />
+      </div>
       <div className="w-full flex gap-1">
         <FreeAgentsWrapper />
-        <TopPerformers />
+        <TopPerformersWrapper />
       </div>
     </div>
   );

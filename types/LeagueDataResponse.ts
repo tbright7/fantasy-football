@@ -1,9 +1,8 @@
-export interface LeagueDataResponse {
+export interface LeagueDataApiResponse {
   draftDetail: DraftDetail;
   gameId: number;
   id: number;
   members: Member[];
-  pendingTransactions: PendingTransaction[];
   positionAgainstOpponent: PositionAgainstOpponent;
   schedule: Schedule[];
   scoringPeriodId: number;
@@ -12,6 +11,9 @@ export interface LeagueDataResponse {
   settings: Settings;
   status: StatusClass;
   teams: Team[];
+}
+
+export interface LeagueDataResponse extends LeagueDataApiResponse {
   userTeam: Team;
 }
 
@@ -28,7 +30,7 @@ export interface Pick {
   id: number;
   keeper: boolean;
   lineupSlotId: number;
-  memberId?: ID;
+  memberId?: PrimaryOwner;
   nominatingTeamId: number;
   overallPickNumber: number;
   playerId: number;
@@ -39,12 +41,12 @@ export interface Pick {
   tradeLocked: boolean;
 }
 
-export type ID = string;
+export type PrimaryOwner = string;
 
 export interface Member {
   displayName: string;
   firstName: string;
-  id: ID;
+  id: PrimaryOwner;
   isLeagueCreator: boolean;
   isLeagueManager: boolean;
   lastName: string;
@@ -57,35 +59,13 @@ export interface NotificationSetting {
   type: string;
 }
 
-export interface PendingTransaction {
-  bidAmount: number;
-  executionType: string;
-  id: string;
-  isActingAsTeamOwner: boolean;
-  isLeagueManager: boolean;
-  isPending: boolean;
-  items: Item[];
-  memberId: ID;
-  processDate: number;
-  proposedDate: number;
-  rating: number;
-  scoringPeriodId: number;
-  skipTransactionCounters: boolean;
-  status: string;
-  subOrder: number;
-  teamId: number;
-  type: string;
+export interface PositionAgainstOpponent {
+  positionalRatings: { [key: string]: PositionalRating };
 }
 
-export interface Item {
-  fromLineupSlotId: number;
-  fromTeamId: number;
-  isKeeper: boolean;
-  overallPickNumber: number;
-  playerId: number;
-  toLineupSlotId: number;
-  toTeamId: number;
-  type: string;
+export interface PositionalRating {
+  average: number;
+  ratingsByOpponent: { [key: string]: RatingsByOpponent };
 }
 
 export interface RatingsByOpponent {
@@ -104,7 +84,7 @@ export interface Schedule {
 
 export interface ScheduleAway {
   adjustment: number;
-  cumulativeScore?: CumulativeScore;
+  cumulativeScore: CumulativeScore;
   pointsByScoringPeriod?: { [key: string]: number };
   teamId: number;
   tiebreak: number;
@@ -130,24 +110,24 @@ export interface RosterForCurrentScoringPeriod {
 export interface RosterForCurrentScoringPeriodEntry {
   lineupSlotId: number;
   playerId: number;
-  playerPoolEntry: PurplePlayerPoolEntry;
+  playerPoolEntry: PlayerPoolEntry;
 }
 
-export interface PurplePlayerPoolEntry {
+export interface PlayerPoolEntry {
   id: number;
-  player: PurplePlayer;
+  player: Player;
 }
 
-export interface PurplePlayer {
+export interface Player {
   defaultPositionId: number;
   fullName: string;
   id: number;
   proTeamId: number;
-  stats: PurpleStat[];
+  stats: Stat[];
   universeId: number;
 }
 
-export interface PurpleStat {
+export interface Stat {
   appliedStats: { [key: string]: number };
   appliedTotal: number;
   externalId: string;
@@ -237,14 +217,14 @@ export interface RosterSettings {
   isUsingUndroppableList: boolean;
   lineupLocktimeType: string;
   lineupSlotCounts: { [key: string]: number };
-  lineupSlotStatLimits: LineupSlotStatLimits;
+  lineupSlotStatLimits: DraftStrategy;
   moveLimit: number;
   positionLimits: { [key: string]: number };
   rosterLocktimeType: string;
   universeIds: number[];
 }
 
-export interface LineupSlotStatLimits {}
+export interface DraftStrategy {}
 
 export interface ScheduleSettings {
   divisions: Division[];
@@ -277,6 +257,11 @@ export interface ScoringSettings {
   playoffMatchupTieRuleBy: number;
   scoringItems: ScoringItem[];
   scoringType: string;
+}
+
+export enum RankType {
+  Ppr = "PPR",
+  Standard = "STANDARD",
 }
 
 export interface ScoringItem {
@@ -326,27 +311,26 @@ export interface Team {
   currentProjectedRank: number;
   divisionId: number;
   draftDayProjectedRank: number;
-  draftStrategy: LineupSlotStatLimits;
+  draftStrategy: DraftStrategy;
   id: number;
   isActive: boolean;
   logo: string;
   logoType: LogoType;
   name: string;
-  owners: ID[];
+  owners: PrimaryOwner[];
   playoffSeed: number;
   points: number;
   pointsAdjusted: number;
   pointsDelta: number;
-  primaryOwner: ID;
+  primaryOwner: PrimaryOwner;
   rankCalculatedFinal: number;
   rankFinal: number;
   record: Record;
-  roster: Roster;
-  tradeBlock: TradeBlock;
+  roster: TeamRoster;
+  tradeBlock: TeamTradeBlock;
   transactionCounter: TransactionCounter;
   valuesByStat: { [key: string]: number };
   waiverRank: number;
-  pendingTransactions?: PendingTransaction[];
   watchList?: number[];
 }
 
@@ -379,10 +363,21 @@ export enum StreakType {
   Win = "WIN",
 }
 
-export interface Roster {
+export interface TeamRoster {
   appliedStatTotal: number;
   entries: RosterEntry[];
   tradeReservedEntries: number;
+}
+
+export interface RosterEntry {
+  acquisitionDate: number;
+  acquisitionType: AcquisitionType;
+  injuryStatus: InjuryStatusEnum;
+  lineupSlotId: number;
+  pendingTransactionIds: any[] | null;
+  playerId: number;
+  playerPoolEntry: FluffyPlayerPoolEntry;
+  status: InjuryStatusEnum;
 }
 
 export enum AcquisitionType {
@@ -467,7 +462,6 @@ export interface Ownership {
 }
 
 export interface FluffyStat {
-  appliedAverage?: number;
   appliedStats: { [key: string]: number };
   appliedTotal: number;
   externalId: string;
@@ -479,13 +473,14 @@ export interface FluffyStat {
   statSplitTypeId: number;
   stats: { [key: string]: number };
   variance: { [key: string]: number };
+  appliedAverage?: number;
 }
 
 export interface Ratings {
-  "0": The0;
+  [key: string]: Rating;
 }
 
-export interface The0 {
+export interface Rating {
   positionalRanking: number;
   totalRanking: number;
   totalRating: number;
@@ -495,7 +490,7 @@ export enum PlayerPoolEntryStatus {
   Onteam = "ONTEAM",
 }
 
-export interface TradeBlock {
+export interface TeamTradeBlock {
   players?: { [key: string]: PlayerValue };
 }
 
@@ -515,266 +510,4 @@ export interface TransactionCounter {
   paid: number;
   teamCharges: number;
   trades: number;
-}
-
-export interface TeamDataResponse {
-  id: number;
-  roster: {
-    appliedStatTotal: number;
-    entries: RosterEntry[];
-    tradeReservedEntries: number;
-  };
-}
-
-export interface RosterEntry {
-  acquisitionDate: number;
-  acquisitionType: string;
-  injuryStatus: string;
-  lineupSlotId: number;
-  pendingTransactionIds: string[];
-  playerId: number;
-  playerPoolEntry: PlayerPoolEntry;
-  status: string;
-}
-
-interface PlayerPoolEntry {
-  appliedStatTotal: number;
-  id: number;
-  keeperValue: number;
-  keeperValueFuture: number;
-  lineupLocked: boolean;
-  onTeamId: number;
-  player: Player;
-  ratings: Ratings;
-  rosterLocked: boolean;
-  status: PlayerPoolEntryStatus;
-  tradeLocked: boolean;
-}
-
-export interface Player {
-  active: boolean;
-  defaultPositionId: number;
-  draftRanksByRankType: DraftRanksByRankType;
-  droppable: boolean;
-  eligibleSlots: number[];
-  firstName: string;
-  fullName: string;
-  id: number;
-  injured: boolean;
-  injuryStatus?: InjuryStatus;
-  lastName: string;
-  lastNewsDate?: number;
-  lastVideoDate?: number;
-  outlooks?: Outlooks;
-  ownership: Ownership;
-  proTeamId: number;
-  rankings: { [key: string]: Ppr[] };
-  seasonOutlook?: string;
-  stats: Stat[];
-  universeId: number;
-}
-
-export interface Ratings {
-  "0": The0;
-}
-export interface The0 {
-  positionalRanking: number;
-  totalRanking: number;
-  totalRating: number;
-}
-
-export interface Outlooks {
-  outlooksByWeek: { [key: string]: string };
-}
-export interface Ownership {
-  auctionValueAverage: number;
-  averageDraftPosition: number;
-  percentChange: number;
-  percentOwned: number;
-  percentStarted: number;
-}
-export interface DraftRanksByRankType {
-  STANDARD: Ppr;
-  PPR: Ppr;
-}
-export interface Ppr {
-  auctionValue: number;
-  published: boolean;
-  rank: number;
-  rankSourceId: number;
-  rankType: RankType;
-  slotId: number;
-  averageRank?: number;
-}
-export interface Stat {
-  appliedAverage?: number;
-  appliedStats: { [key: string]: number };
-  appliedTotal: number;
-  externalId: string;
-  id: string;
-  proTeamId: number;
-  scoringPeriodId: number;
-  seasonId: number;
-  statSourceId: number;
-  statSplitTypeId: number;
-  stats: { [key: string]: number };
-}
-
-export enum RankType {
-  Ppr = "PPR",
-  Standard = "STANDARD",
-}
-
-export interface FreeAgentDataResponse {
-  players: PlayerElement[];
-  positionAgainstOpponent: PositionAgainstOpponent;
-}
-
-export interface PlayerElement {
-  draftAuctionValue: number;
-  id: number;
-  keeperValue: number;
-  keeperValueFuture: number;
-  lineupLocked: boolean;
-  onTeamId: number;
-  player: PlayerPlayer;
-  ratings: Ratings;
-  rosterLocked: boolean;
-  status: string;
-  tradeLocked: boolean;
-  waiverProcessDate: number;
-}
-
-export interface PlayerPlayer {
-  active: boolean;
-  defaultPositionId: number;
-  draftRanksByRankType: DraftRanksByRankType;
-  droppable: boolean;
-  eligibleSlots: number[];
-  firstName: string;
-  fullName: string;
-  id: number;
-  injured: boolean;
-  lastName: string;
-  ownership: Ownership;
-  proTeamId: number;
-  rankings: Rankings;
-  seasonOutlook: string;
-  stats: Stat[];
-}
-
-export interface DraftRanksByRankType {
-  STANDARD: Ppr;
-  PPR: Ppr;
-}
-
-export interface Ppr {
-  auctionValue: number;
-  published: boolean;
-  rank: number;
-  rankSourceId: number;
-  rankType: RankType;
-  slotId: number;
-  averageRank?: number;
-}
-
-export interface Ownership {
-  activityLevel: null;
-  auctionValueAverage: number;
-  auctionValueAverageChange: number;
-  averageDraftPosition: number;
-  averageDraftPositionPercentChange: number;
-  date: number;
-  leagueType: number;
-  percentChange: number;
-  percentOwned: number;
-  percentStarted: number;
-}
-
-export interface Rankings {
-  "13": Ppr[];
-}
-
-export interface Stat {
-  appliedAverage?: number;
-  appliedTotal: number;
-  externalId: string;
-  id: string;
-  proTeamId: number;
-  scoringPeriodId: number;
-  seasonId: number;
-  statSourceId: number;
-  statSplitTypeId: number;
-  stats: { [key: string]: number };
-}
-
-export interface PositionAgainstOpponent {
-  positionalRatings: { [key: string]: PositionalRating };
-}
-
-export interface PositionalRating {
-  average: number;
-  ratingsByOpponent: { [key: string]: RatingsByOpponent };
-}
-
-export interface RatingsByOpponent {
-  average: number;
-  rank: number;
-}
-
-export interface TeamsScheduleResponse {
-  display: boolean;
-  settings: Settings;
-}
-
-export interface Settings {
-  defaultDraftPosition: number;
-  draftLobbyMinimumLeagueCount: number;
-  gameNotificationSettings: GameNotificationSettings;
-  gated: boolean;
-  playerOwnershipSettings: PlayerOwnershipSettings;
-  proTeams: ProTeam[];
-  readOnly: boolean;
-  statIdToOverridePosition: { [key: string]: number };
-  teamActivityEnabled: boolean;
-  typeNames: { [key: string]: string[] };
-}
-
-export interface GameNotificationSettings {
-  availabilityNotificationsEnabled: boolean;
-  draftNotificationsEnabled: boolean;
-  injuryNotificationsEnabled: boolean;
-  lineupNotificationsEnabled: boolean;
-  positionEligibilityNotificationsEnabled: boolean;
-  rosterNewsNotificationsEnabled: boolean;
-  startBenchNotificationsEnabled: boolean;
-  tradeNotificationsEnabled: boolean;
-}
-
-export interface PlayerOwnershipSettings {
-  firstGameDate: number;
-  lastGameDate: number;
-  startDate: number;
-}
-
-export interface ProTeam {
-  abbrev: string;
-  byeWeek: number;
-  id: number;
-  location: string;
-  name: string;
-  proGamesByScoringPeriod: { [key: string]: ProGamesByScoringPeriod[] };
-  teamPlayersByPosition?: { [key: string]: number };
-  universeId: number;
-}
-
-export interface ProGamesByScoringPeriod {
-  awayProTeamId: number;
-  date: number;
-  homeProTeamId: number;
-  id: number;
-  scoringPeriodId: number;
-  startTimeTBD: boolean;
-  statsOfficial: boolean;
-  validForLocking: boolean;
 }

@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
 import { setEspnCookies, getLeagueData } from "@/lib/api/espn";
 import { cookies } from "next/headers";
-import { LeagueDataResponse, Team } from "@/types";
-
-interface LeagueDataApiResponse extends LeagueDataResponse {
-  userTeam: Team;
-}
+import { LeagueDataResponse, Team } from "@/types/LeagueDataResponse";
 
 const leagueCache = new Map<
   string,
-  { data: LeagueDataApiResponse; timestamp: number }
+  { data: LeagueDataResponse; timestamp: number }
 >();
 
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
@@ -40,9 +36,9 @@ export async function GET() {
     setEspnCookies(espn_s2, swid);
 
     const leagueData = await getLeagueData(leagueId);
-    const userTeam = leagueData.teams.find((team: Team) =>
+    const userTeam = leagueData.teams.find((team) =>
       team.owners.includes(swid)
-    ) as Team;
+    ) as unknown as Team;
     const seasonId = leagueData.seasonId;
 
     if (userTeam) {

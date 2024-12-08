@@ -40,10 +40,7 @@ export const Table = <T,>({
         <thead>
           <tr className="bg-gray-200">
             {columns.map((column, index) => (
-              <th
-                key={index}
-                className={`px-4 py-2 text-left ${column.className || ""}`}
-              >
+              <th key={index} className={`px-4 py-2 text-left `}>
                 {column.header}
               </th>
             ))}

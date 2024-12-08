@@ -1,20 +1,21 @@
 import React from "react";
-import { FreeAgents } from "./FreeAgents";
-import { fetchFreeAgentData } from "@/lib/api/fetchFreeAgentData";
+import { TopPerformers } from "./TopPerformers";
 import {
   fetchLeagueData,
   fetchTeamsSchedule,
   fetchTopPerformers,
 } from "@/lib/api";
 import { getTeamMetadata } from "@/lib/utils/getTeamMetadata";
-export async function TopPerformers() {
-  const freeAgentData = await fetchTopPerformers();
+
+export async function TopPerformersWrapper() {
+  const topPerformersData = await fetchTopPerformers();
   const leagueData = await fetchLeagueData();
   const teamsSchedule = await fetchTeamsSchedule();
   const teamsMetadata = getTeamMetadata(teamsSchedule);
+
   return (
-    <FreeAgents
-      freeAgentData={freeAgentData}
+    <TopPerformers
+      topPerformersData={topPerformersData}
       leagueData={leagueData}
       teamsMetadata={teamsMetadata}
     />

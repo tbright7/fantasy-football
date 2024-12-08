@@ -1,27 +1,26 @@
-import { PlayerElement, RosterEntry } from "@/types";
+import { Player, PlayerPoolEntry } from "@/types/FreeAgentDataResponse";
 import { positionMap } from "@/constants";
 import { Column } from "../Table";
 import { TeamsMetadata, getOpponentName } from "@/lib/utils";
+import { Entry } from "@/types/TeamDataResponse";
 
 export const createColumns = (
   teamsMetadata: TeamsMetadata,
   scoringPeriodId: number,
-  sortedPointsByPosition: Record<number, RosterEntry[]>
-): Column<PlayerElement>[] => {
+  sortedPointsByPosition: Record<number, Entry[]>
+): Column<PlayerPoolEntry>[] => {
   return [
     {
       header: "Player Name",
       accessor: "player",
-      render: (value: FreeAgent) => {
+      render: (value: Player) => {
         const pointsByPositionGroup =
           sortedPointsByPosition[value.defaultPositionId] || [];
 
         if (pointsByPositionGroup.length === 0) {
-          // No players in the position group; just return the free agent's name
           return <span>{value.fullName}</span>;
         }
 
-        // Filter out players on bye weeks
         const validPlayers = pointsByPositionGroup.filter((player) => {
           const teamId = player?.playerPoolEntry?.player?.proTeamId ?? null;
           return !(
@@ -40,9 +39,9 @@ export const createColumns = (
 
         if (
           !isByeWeek &&
-          lowestPointsByPosition.projectedPoints < value.projectedPoints
+          (lowestPointsByPosition.projectedPoints ?? -Infinity) <
+            (value?.projectedPoints ?? -Infinity)
         ) {
-          console.log(value.fullName);
           return (
             <span className="font-bold text-green-700">{value.fullName}</span>
           );
@@ -73,7 +72,6 @@ export const createColumns = (
       accessor: "player.proTeamId",
       render: (teamId: number) =>
         getOpponentName(teamsMetadata, teamId, scoringPeriodId),
-      className: "text-right",
     },
   ];
 };

@@ -1,8 +1,7 @@
-import { PlayerElement } from "@/types";
 import { positionMap } from "@/constants";
 import { Column } from "../Table";
 import { TeamsMetadata, getOpponentName } from "@/lib/utils";
-
+import { PlayerElement } from "@/lib/api";
 export const createColumns = (
   teamsMetadata: TeamsMetadata,
   scoringPeriodId: number
@@ -20,7 +19,6 @@ export const createColumns = (
     {
       header: "Owner",
       accessor: "owner",
-      className: "text-right",
     },
     {
       header: "Score",
@@ -33,7 +31,6 @@ export const createColumns = (
       accessor: "player.proTeamId",
       render: (teamId: number) =>
         getOpponentName(teamsMetadata, teamId, scoringPeriodId),
-      className: "text-right",
     },
   ];
 };

@@ -1,6 +1,6 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
-import { TeamsScheduleResponse } from "@/types";
+import { TeamsScheduleResponse } from "@/types/TeamsScheduleResponse";
 import { cookies } from "next/headers";
 import { fetchDataWithRetry } from "./fetchDataWithRetry";
 

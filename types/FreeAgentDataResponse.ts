@@ -1,79 +1,53 @@
-/* eslint-disable  @typescript-eslint/no-explicit-any */
-
-import { cookies } from "next/headers";
-import { fetchDataWithRetry } from "./fetchDataWithRetry";
-
-export const fetchTopPerformers = async (
-  endpoint: string = "http://localhost:3000/api/espn/top-performers"
-): Promise<TopPerformersResponse> => {
-  const cookieStore = await cookies();
-  const swid = cookieStore.get("swid")?.value;
-  const leagueId = cookieStore.get("leagueId")?.value;
-  const espn_s2 = cookieStore.get("espn_s2")?.value;
-  const scoringPeriodId = cookieStore.get("scoringPeriodId")?.value;
-  const seasonId = cookieStore.get("seasonId")?.value;
-
-  const headers: HeadersInit = {
-    Cookie: `espn_s2=${espn_s2}; swid=${swid}; leagueId=${leagueId}; scoringPeriodId=${scoringPeriodId} seasonId=${seasonId}`,
-  };
-
-  return fetchDataWithRetry<TopPerformersResponse>(
-    endpoint,
-    3,
-    1000,
-    5000,
-    headers
-  );
-};
-
-export interface TopPerformersResponse {
-  players: PlayerElement[];
+export interface FreeAgentDataResponse {
+  players: PlayerPoolEntry[];
   positionAgainstOpponent: PositionAgainstOpponent;
 }
 
-export interface PlayerElement {
+export interface PlayerPoolEntry {
   draftAuctionValue: number;
   id: number;
   keeperValue: number;
   keeperValueFuture: number;
   lineupLocked: boolean;
   onTeamId: number;
-  player: PlayerPlayer;
-  ratings: Ratings;
+  player: Player;
+  ratings?: Ratings;
   rosterLocked: boolean;
-  status: string;
+  status: Status;
   tradeLocked: boolean;
+  waiverProcessDate?: number;
 }
 
-export interface PlayerPlayer {
+export interface Player {
   active: boolean;
   defaultPositionId: number;
-  draftRanksByRankType: DraftRanksByRankType;
+  draftRanksByRankType?: DraftRanksByRankType;
   droppable: boolean;
   eligibleSlots: number[];
   firstName: string;
   fullName: string;
   id: number;
   injured: boolean;
-  injuryStatus: string;
-  jersey: string;
+  injuryStatus?: InjuryStatus;
+  jersey?: string;
   lastName: string;
-  lastNewsDate: number;
-  lastVideoDate: number;
-  outlooks: Outlooks;
+  lastNewsDate?: number;
+  lastVideoDate?: number;
+  outlooks?: Outlooks;
   ownership: Ownership;
   proTeamId: number;
-  rankings: { [key: string]: Ppr[] };
-  seasonOutlook: string;
+  rankings?: Rankings;
+  seasonOutlook?: string;
   stats: Stat[];
+  projectedPoints?: number;
 }
 
 export interface DraftRanksByRankType {
-  STANDARD: Ppr;
-  PPR: Ppr;
+  STANDARD?: DraftRank;
+  PPR: DraftRank;
 }
 
-export interface Ppr {
+export interface DraftRank {
   auctionValue: number;
   published: boolean;
   rank: number;
@@ -86,6 +60,13 @@ export interface Ppr {
 export enum RankType {
   Ppr = "PPR",
   Standard = "STANDARD",
+}
+
+export enum InjuryStatus {
+  Active = "ACTIVE",
+  Doubtful = "DOUBTFUL",
+  Questionable = "QUESTIONABLE",
+  Suspension = "SUSPENSION",
 }
 
 export interface Outlooks {
@@ -105,8 +86,13 @@ export interface Ownership {
   percentStarted: number;
 }
 
+export type Rankings = {
+  "14"?: DraftRank[];
+};
+
 export interface Stat {
-  appliedTotal: number;
+  appliedAverage?: number;
+  appliedTotal?: number;
   externalId: string;
   id: string;
   proTeamId: number;
@@ -114,17 +100,22 @@ export interface Stat {
   seasonId: number;
   statSourceId: number;
   statSplitTypeId: number;
-  stats: { [key: string]: number };
+  stats?: { [key: string]: number };
 }
 
 export interface Ratings {
-  "0": The0;
+  [key: string]: Rating;
 }
 
-export interface The0 {
+export interface Rating {
   positionalRanking: number;
   totalRanking: number;
   totalRating: number;
+}
+
+export enum Status {
+  Freeagent = "FREEAGENT",
+  Waivers = "WAIVERS",
 }
 
 export interface PositionAgainstOpponent {
