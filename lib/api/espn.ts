@@ -47,7 +47,7 @@ export async function getTeamsSchedule(
 
 export async function getFreeAgents(
   leagueId: string,
-  scoringPeriodId: string,
+  scoringPeriodId: number,
   seasonId = 2024
 ): Promise<FreeAgentDataResponse> {
   const filterData = {
@@ -60,13 +60,13 @@ export async function getFreeAgents(
           23, 24,
         ],
       },
-      filterRanksForScoringPeriodIds: { value: [14] },
+      filterRanksForScoringPeriodIds: { value: [scoringPeriodId] },
       limit: 1000,
       offset: 0,
       sortAppliedStatTotal: {
         sortAsc: false,
         sortPriority: 1,
-        value: "11202414",
+        value: `11${seasonId}${scoringPeriodId}`,
       },
       sortDraftRanks: { sortPriority: 100, sortAsc: true, value: "STANDARD" },
       filterRanksForRankTypes: { value: ["PPR"] },

@@ -5,9 +5,10 @@ import { Table } from "../Table";
 import Card from "../Card";
 import { useState } from "react";
 import Tabs from "./Tabs";
-import { TeamsMetadata, getPlayerPoints } from "@/lib/utils";
+import { TeamsMetadata } from "@/lib/utils";
 import { LeagueDataResponse } from "@/types/LeagueDataResponse";
 import { TeamDataResponse } from "@/types/TeamDataResponse";
+import { TeamsScheduleResponse } from "@/types/TeamsScheduleResponse";
 
 const TAB_CATEGORIES = [
   { label: "Top Overall", id: "overall" },
@@ -24,35 +25,25 @@ export function FreeAgents({
   leagueData,
   teamsMetadata,
   teamData,
+  teamsSchedule,
 }: {
   freeAgentData: FreeAgentDataResponse;
   leagueData: LeagueDataResponse;
   teamsMetadata: TeamsMetadata;
   teamData: TeamDataResponse;
+  teamsSchedule: TeamsScheduleResponse;
 }) {
   const [activeTab, setActiveTab] = useState("overall");
 
   function getTopPlayers(positionId?: number) {
     if (!freeAgentData?.players) return [];
-    const players = freeAgentData.players.map((agent) => {
-      const game = getPlayerPoints(agent, leagueData.scoringPeriodId);
-      return {
-        ...agent,
-        player: {
-          ...agent.player,
-          projectedPoints: game.projectedStat,
-          actualPoints: game.actualStats,
-        },
-      };
-    });
-
     if (positionId) {
-      return players
+      return freeAgentData.players
         .filter((player) => player.player.defaultPositionId === positionId)
         .slice(0, 10);
     }
 
-    return players.slice(0, 10);
+    return freeAgentData.players.slice(0, 10);
   }
 
   const activePlayers =
@@ -65,12 +56,13 @@ export function FreeAgents({
   const columns = createColumns(
     teamsMetadata,
     leagueData.scoringPeriodId,
-    teamData.positionGroupsByProjectedPoints
+    teamData.positionGroupsByProjectedPoints,
+    teamsSchedule
   );
 
   return (
-    <Card header="Top Free Agents" collapsible className="">
-      <div className="w-full">
+    <Card header="Top Free Agents" collapsible className="overflow-auto">
+      <div className="">
         <div className="overflow-x-auto">
           <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>

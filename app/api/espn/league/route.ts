@@ -50,7 +50,6 @@ export async function GET() {
       data: { ...leagueData, userTeam },
       timestamp: Date.now(),
     });
-
     return NextResponse.json({ data: { ...leagueData, userTeam } });
   } catch (error) {
     console.error("Error fetching league data:", error);

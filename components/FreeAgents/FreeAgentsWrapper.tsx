@@ -17,6 +17,7 @@ export async function FreeAgentsWrapper() {
       freeAgentData={freeAgentData}
       leagueData={leagueData}
       teamsMetadata={teamsMetadata}
+      teamsSchedule={teamsSchedule}
     />
   );
 }

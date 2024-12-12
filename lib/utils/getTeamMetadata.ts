@@ -67,5 +67,5 @@ export const getOpponentName = (
   if (!game) return undefined;
 
   const opponentId = game.opponentId;
-  return teamsMetadata[opponentId]?.abbrev;
+  return teamsMetadata[opponentId]?.name;
 };

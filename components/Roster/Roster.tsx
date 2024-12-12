@@ -14,7 +14,8 @@ export async function Roster() {
   const columns = createColumns(
     leagueData?.scoringPeriodId,
     leagueData?.seasonId,
-    teamsMetadata
+    teamsMetadata,
+    teamsSchedule
   );
 
   const cardHeader = "Your Roster";

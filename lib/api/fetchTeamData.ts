@@ -10,7 +10,7 @@ export const fetchTeamData = async (
   const leagueId = cookieStore.get("leagueId")?.value;
   const espn_s2 = cookieStore.get("espn_s2")?.value;
   const teamId = cookieStore.get("teamId")?.value;
-
+  
   if (!swid || !leagueId || !espn_s2 || !teamId) {
     throw new Error("Missing required cookies for fetching team data.");
   }

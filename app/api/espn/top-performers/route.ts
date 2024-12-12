@@ -46,11 +46,12 @@ export async function GET() {
     }
 
     if (finalScoringPeriodId !== undefined) {
-      const freeAgentData = await getTopPerformers(
+      const topPerformersData = await getTopPerformers(
         leagueId,
         finalScoringPeriodId
       );
-      return NextResponse.json({ data: freeAgentData });
+
+      return NextResponse.json({ data: topPerformersData });
     }
   } catch (error) {
     console.error("Error fetching free agent data:", error);

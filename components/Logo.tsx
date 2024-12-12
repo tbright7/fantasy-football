@@ -1,8 +1,16 @@
 import React from "react";
 import { Team } from "@/types/LeagueDataResponse";
+import Image from "next/image";
 
 function Logo({ userTeam }: { userTeam: Team }) {
-  return <img src={userTeam?.logo} className="h-12" />;
+  return (
+    <Image
+      src={userTeam?.logo}
+      alt="Team logo"
+      width={48}
+      height={48}
+    />
+  );
 }
 
 export default Logo;

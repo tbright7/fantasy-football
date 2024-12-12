@@ -1,14 +1,9 @@
-import { Stat, PlayerPoolEntry } from "@/types/TeamDataResponse";
 import { Team } from "@/types/LeagueDataResponse";
 import {
   TeamDataResponse,
-  Entry,
   TeamDataApiResponse,
 } from "@/types/TeamDataResponse";
-import {
-  PlayerPoolEntry as FreeAgentPlayerPoolEntry,
-  Stat as FreeAgentStat,
-} from "@/types/FreeAgentDataResponse";
+import { Entry, Stat, BasePlayerPoolEntry } from "@/types/common";
 export function getSortedProjectedPointsByPosition(
   teamData: TeamDataResponse | TeamDataApiResponse
 ) {
@@ -26,8 +21,8 @@ export function getSortedProjectedPointsByPosition(
 
   Object.values(map).forEach((position) =>
     position.sort((a, b) => {
-      const pointsA = a?.projectedPoints ?? -Infinity; // Fallback for undefined
-      const pointsB = b?.projectedPoints ?? -Infinity; // Fallback for undefined
+      const pointsA = a.playerPoolEntry.player.projectedPoints ?? -Infinity; // Fallback for undefined
+      const pointsB = b.playerPoolEntry.player.projectedPoints ?? -Infinity; // Fallback for undefined
       return pointsB - pointsA; // Sort in descending order
     })
   );
@@ -35,10 +30,7 @@ export function getSortedProjectedPointsByPosition(
   return map;
 }
 
-export function getPlayerGame(
-  stats: Stat[] | FreeAgentStat[],
-  scoringPeriodId?: number
-) {
+export function getPlayerGame(stats: Stat[], scoringPeriodId?: number) {
   const actualStats = stats.find(
     (stat) =>
       stat.scoringPeriodId === scoringPeriodId && stat.statSourceId === 0
@@ -47,11 +39,12 @@ export function getPlayerGame(
     (stat) =>
       stat.scoringPeriodId === scoringPeriodId && stat.statSourceId === 1
   );
+
   return { projectedStats, actualStats };
 }
 
 export function getPlayerPoints(
-  entry: PlayerPoolEntry | FreeAgentPlayerPoolEntry,
+  entry: BasePlayerPoolEntry,
   scoringPeriodId: number
 ) {
   const { projectedStats, actualStats } = getPlayerGame(
@@ -65,14 +58,14 @@ export function getPlayerPoints(
   return stats;
 }
 
-export function getOwner(player: PlayerPoolEntry, teams: Team[]) {
+export function getOwner(player: BasePlayerPoolEntry, teams: Team[]) {
   return (
     teams.find((team) => team.id === player.onTeamId)?.name ?? "Free Agent"
   );
 }
 
 export function getTopPlayers(
-  players: PlayerPoolEntry[],
+  players: BasePlayerPoolEntry[],
   scoringPeriodId: number,
   positionId?: number,
   numberOfPlayersToReturn?: number
@@ -98,4 +91,17 @@ export function getTopPlayers(
   }
 
   return playersWithPoints.slice(0, numberOfPlayersToReturn ?? 10);
+}
+
+export function getPlayerHeadshotUrl(
+  isDefense: boolean,
+  id?: number,
+  teamAbbrev?: string
+) {
+  if (isDefense && teamAbbrev) {
+    return `https://a.espncdn.com/combiner/i?img=/i/teamlogos/nfl/500/${teamAbbrev}.png&h=70&w=96&cb=1`;
+  } else if (id) {
+    return `https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${id}.png&cb=1`;
+  }
+  return "https://a.espncdn.com/combiner/i?img=/games/lm-static/ffl/images/nomug.png&w=96&h=70&cb=1";
 }

@@ -18,6 +18,7 @@ export async function TopPerformersWrapper() {
       topPerformersData={topPerformersData}
       leagueData={leagueData}
       teamsMetadata={teamsMetadata}
+      teamsSchedule={teamsSchedule}
     />
   );
 }

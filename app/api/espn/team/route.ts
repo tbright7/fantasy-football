@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { setEspnCookies, getTeamData } from "@/lib/api/espn";
 import { fetchLeagueData } from "@/lib/api";
 import { cookies } from "next/headers";
-import { getPlayerGame, getSortedProjectedPointsByPosition } from "@/lib/utils";
+import {
+  getSortedProjectedPointsByPosition,
+  getPlayerPoints,
+} from "@/lib/utils";
 import { TeamDataResponse } from "@/types/TeamDataResponse";
 
 export async function GET() {
@@ -47,13 +50,13 @@ export async function GET() {
     }
 
     const teamData = await getTeamData(leagueId, finalTeamId);
-    teamData.roster.entries.forEach((player) => {
-      const game = getPlayerGame(
-        player.playerPoolEntry.player.stats,
+    teamData.roster.entries.forEach((rosterEntry) => {
+      const game = getPlayerPoints(
+        rosterEntry.playerPoolEntry,
         scoringPeriodId
       );
-      player["projectedPoints"] = game.projectedStats?.appliedTotal;
-      player["actualPoints"] = game.actualStats?.appliedTotal;
+      rosterEntry.playerPoolEntry.player.projectedPoints = game.projectedStat;
+      rosterEntry.playerPoolEntry.player.actualPoints = game.actualStats;
     });
 
     const response: TeamDataResponse = {

@@ -1,19 +1,59 @@
-import { Player, PlayerPoolEntry } from "@/types/FreeAgentDataResponse";
+import { FreeAgentPlayer } from "@/types/FreeAgentDataResponse";
 import { positionMap } from "@/constants";
 import { Column } from "../Table";
-import { TeamsMetadata, getOpponentName } from "@/lib/utils";
-import { Entry } from "@/types/TeamDataResponse";
+import {
+  TeamsMetadata,
+  getOpponentName,
+  getPlayerHeadshotUrl,
+} from "@/lib/utils";
+import { Entry, BasePlayer } from "@/types/common";
+import Image from "next/image";
+import { TeamsScheduleResponse } from "@/types/TeamsScheduleResponse";
 
 export const createColumns = (
   teamsMetadata: TeamsMetadata,
   scoringPeriodId: number,
-  sortedPointsByPosition: Record<number, Entry[]>
-): Column<PlayerPoolEntry>[] => {
+  sortedPointsByPosition: Record<number, Entry[]>,
+  teamsSchedule: TeamsScheduleResponse
+): Column<FreeAgentPlayer>[] => {
   return [
+    {
+      header: "",
+      accessor: "player",
+      render: (value: BasePlayer) => {
+        const defaultDefensivePositionId = 16;
+        const isDefense =
+          value.defaultPositionId === defaultDefensivePositionId;
+        let teamAbr = undefined;
+
+        if (isDefense) {
+          teamAbr = teamsSchedule.settings.proTeams.find(
+            (team) => team.id === value.proTeamId
+          )?.abbrev;
+        }
+        const playerHeadshotUrl = getPlayerHeadshotUrl(
+          isDefense,
+          value.id,
+          teamAbr
+        );
+        return (
+          <div className="h-12 w-12">
+            <Image
+              src={playerHeadshotUrl}
+              alt="Player or Team Logo"
+              width={12}
+              height={12}
+              layout="responsive"
+              unoptimized
+            />
+          </div>
+        );
+      },
+    },
     {
       header: "Player Name",
       accessor: "player",
-      render: (value: Player) => {
+      render: (value: BasePlayer) => {
         const pointsByPositionGroup =
           sortedPointsByPosition[value.defaultPositionId] || [];
 
@@ -39,8 +79,8 @@ export const createColumns = (
 
         if (
           !isByeWeek &&
-          (lowestPointsByPosition.projectedPoints ?? -Infinity) <
-            (value?.projectedPoints ?? -Infinity)
+          (lowestPointsByPosition.playerPoolEntry.player.projectedPoints ??
+            -Infinity) < (value?.projectedPoints ?? -Infinity)
         ) {
           return (
             <span className="font-bold text-green-700">{value.fullName}</span>
@@ -57,14 +97,14 @@ export const createColumns = (
     },
     {
       header: "Projected Score",
-      accessor: "player.projectedPoints",
-      render: (value: number) => value.toFixed(2),
+      accessor: "player",
+      render: (value: BasePlayer) => value?.projectedPoints?.toFixed(2),
       className: "text-right",
     },
     {
       header: "Actual Score",
-      accessor: "player.actualPoints",
-      render: (value: number) => value.toFixed(2),
+      accessor: "player",
+      render: (value: BasePlayer) => value?.actualPoints?.toFixed(2),
       className: "text-right",
     },
     {
